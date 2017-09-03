@@ -1,4 +1,4 @@
-git pull --recurse-submodules
+yarn theme
 yarn
 gulp build
 hugo
