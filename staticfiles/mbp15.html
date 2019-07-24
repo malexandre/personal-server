@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>MB:P 1.5 Pool Generator</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style>
+      .boxes {
+        width: 210px;
+      }
+
+      .unit-counts {
+        width: 200px;
+      }
+
+      .number-input {
+        width: 60px;
+        text-align: center;
+      }
+
+      .pool-cards {
+        width: 250px;
+      }
+    </style>
+    <script type="text/javascript">
+      const units = {
+        gods: [
+          {
+            name: "Aphrodite",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Apollon",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Ares",
+            box: "COR",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Artemis",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Athena",
+            box: "COR",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Atlas",
+            box: "PAN",
+            cost: 8,
+            ignored: true
+          },
+          {
+            name: "Hades",
+            box: "COR",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Hecate",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Helios",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Hera",
+            box: "HER",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Hermes",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Pan",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Persephone",
+            box: "PAN",
+            cost: 6,
+            ignored: false
+          },
+          {
+            name: "Zeus",
+            box: "COR",
+            cost: 6,
+            ignored: false
+          }
+        ],
+        monsters: [
+          {
+            name: "Arachne",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Campe",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Cerbere",
+            box: "COR",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Dragon de Colchide",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Dragon de Thebes",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Echidna",
+            box: "PAN",
+            cost: 5,
+            ignored: false
+          },
+          {
+            name: "Geryon",
+            box: "HER",
+            cost: 5,
+            ignored: false
+          },
+          {
+            name: "Grees",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Griffon",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Hydre",
+            box: "COR",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Ladon",
+            box: "HER",
+            cost: 5,
+            ignored: false
+          },
+          {
+            name: "Lion de Nemee",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Lycaon",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Meduse",
+            box: "COR",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Minos",
+            box: "JUD",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Minotaure",
+            box: "COR",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Orion",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Phenix",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Python",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Sanglier de Calydon",
+            box: "HER",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Stheno la Gorgone",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Tityos",
+            box: "PAN",
+            cost: 4,
+            ignored: false
+          }
+        ],
+        heroes: [
+          {
+            name: "Achille",
+            box: "COR",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Achille Veteran",
+            box: "HER",
+            cost: 5,
+            ignored: true
+          },
+          {
+            name: "Agamemnon",
+            box: "TRO",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Ajax",
+            box: "TRO",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Atalante",
+            box: "COR",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Autolycos",
+            box: "HER",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Bellerophon",
+            box: "PAN",
+            cost: 5,
+            ignored: false
+          },
+          {
+            name: "Cecrops",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Chiron",
+            box: "HER",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Circe",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Diomede",
+            box: "TRO",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Eaque",
+            box: "JUD",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Echo",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Egisthe",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Eurysthee",
+            box: "HER",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Eurytion",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Eurytos",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Hector",
+            box: "PAN",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Heracles",
+            box: "COR",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Heracles Veteran",
+            box: "HER",
+            cost: 5,
+            ignored: true
+          },
+          {
+            name: "Hippolyte",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Icare",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Jason",
+            box: "COR",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Leonidas",
+            box: "COR",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Marsyas",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Medee",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Orphee",
+            box: "PAN",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Paris",
+            box: "TRO",
+            cost: 2,
+            ignored: false
+          },
+          {
+            name: "Penthesilee",
+            box: "TRO",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Persee",
+            box: "HER",
+            cost: 4,
+            ignored: false
+          },
+          {
+            name: "Rhadamanthe",
+            box: "JUD",
+            cost: 3,
+            ignored: false
+          },
+          {
+            name: "Sisyphe",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Ulysse",
+            box: "COR",
+            cost: 3,
+            ignored: false
+          }
+        ],
+        troops: [
+          {
+            name: "Amazones",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Argonautes",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Artilleurs des Enfers",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Centaures",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Chiens des Enfers",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Guerriers des Enfers",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Hoplites",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Myrmidons",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Oiseaux de Stymphale",
+            box: "HER",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Spartiates",
+            box: "COR",
+            cost: 1,
+            ignored: false
+          },
+          {
+            name: "Toxotes",
+            box: "PAN",
+            cost: 1,
+            ignored: false
+          }
+        ]
+      };
+
+      function selectAndRemoveUnit(units, avoid5costs) {
+        const idx = Math.floor(Math.random() * units.length);
+        const unit = units[idx];
+
+        if (unit.cost >= 5 && avoid5costs) {
+          return selectAndRemoveUnit(units, avoid5costs);
+        }
+
+        units.splice(idx, 1);
+        return unit;
+      }
+
+      function filterUnits(type, includeIgnoredUnits) {
+        const boxes = [];
+
+        if (document.getElementById("core").checked) {
+          boxes.push("COR");
+        }
+        if (document.getElementById("pandora").checked) {
+          boxes.push("PAN");
+        }
+        if (document.getElementById("hera").checked) {
+          boxes.push("HER");
+        }
+        if (document.getElementById("judges").checked) {
+          boxes.push("JUD");
+        }
+        if (document.getElementById("trojan").checked) {
+          boxes.push("TRO");
+        }
+
+        return units[type].filter((u) => boxes.includes(u.box) && (includeIgnoredUnits || u.ignored === false));
+      }
+
+      function createCardFragment(htmlStr) {
+        const div = document.createElement("div");
+        div.className = "mb-3 mr-3 ml-3 pool-cards";
+        div.innerHTML = htmlStr;
+        return div;
+      }
+
+      function displayUnit(unit) {
+        let color;
+
+        switch (unit.box) {
+          case "PAN":
+            color = "sienna";
+            break;
+
+          case "HER":
+            color = "green";
+            break;
+
+          case "JUD":
+            color = "gold";
+            break;
+
+          case "TRO":
+            color = "darkgrey";
+            break;
+        }
+
+        return `<span class="badge badge-light" style="background-color: ${color};">${unit.box}</span> ${unit.name}`;
+      }
+
+      function displayUnitType(units) {
+        return `<div class="row"><div class="col-sm">${units
+          .sort((a, b) => a.name > b.name ? 1 : -1)
+          .map(displayUnit)
+          .join("<br .>")}</div></div>`;
+      }
+
+      function displayPool(pool) {
+        document
+          .getElementById("pools")
+          .appendChild(
+            createCardFragment(
+              `<div class="card"><div class="card-body">${pool.map(displayUnitType).join("<br />")}</div></div>`
+            )
+          );
+      }
+
+      function pickPools() {
+        document.getElementById("pools").innerHTML = "";
+        const tableCount = document.querySelector('input[name="tableCount"]:checked').value;
+
+        const gods = [...filterUnits("gods", document.getElementById("titans").checked)];
+        const heroes = [...filterUnits("heroes", document.getElementById("veterans").checked)];
+        const monsters = [...filterUnits("monsters")];
+        const troops = [...filterUnits("troops")];
+
+        for (var idx = 0; idx < tableCount; idx++) {
+          const data = [[], [], [], []];
+          let cost5Units = 0;
+
+          for (var jdx = 0; jdx < (document.getElementById("godCount").value || 4) && gods.length; jdx++) {
+            data[0].push(selectAndRemoveUnit(gods));
+          }
+
+          for (var jdx = 0; jdx < (document.getElementById("heroCount").value || 5) && heroes.length; jdx++) {
+            const hero = selectAndRemoveUnit(heroes, cost5Units >= 2);
+
+            if (hero.cost >= 5) {
+              cost5Units++;
+            }
+
+            data[1].push(hero);
+          }
+
+          for (var jdx = 0; jdx < (document.getElementById("monsterCount").value || 5) && monsters.length; jdx++) {
+            const monster = selectAndRemoveUnit(monsters, cost5Units >= 2);
+
+            if (monster.cost >= 5) {
+              cost5Units++;
+            }
+
+            data[2].push(monster);
+          }
+
+          for (var jdx = 0; jdx < (document.getElementById("troopCount").value || 5) && troops.length; jdx++) {
+            const troop = selectAndRemoveUnit(troops, cost5Units >= 2);
+
+            if (troop.cost >= 5) {
+              cost5Units++;
+            }
+
+            data[3].push(troop);
+          }
+
+          setTimeout(() => displayPool(data), 0);
+        }
+
+        document.getElementById("results").classList.remove("d-none");
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm text-center">
+          <h1>MB:P 1.5 Pool Generator</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <h3 class="mt-4 mb-3 text-center">Choisissez vos boîtes :</h3>
+          <div class="d-flex flex-column align-items-center">
+            <div class="form-check form-check-inline boxes">
+              <input class="form-check-input" type="checkbox" id="core" value="COR" checked />
+              <label class="form-check-label" for="core">Core</label>
+            </div>
+            <div class="form-check form-check-inline boxes">
+              <input class="form-check-input" type="checkbox" id="pandora" value="PAN" checked />
+              <label class="form-check-label" for="pandora">Pandora</label>
+            </div>
+            <div class="form-check form-check-inline boxes">
+              <input class="form-check-input" type="checkbox" id="hera" value="HER" checked />
+              <label class="form-check-label" for="hera">Hera</label>
+            </div>
+            <div class="form-check form-check-inline boxes">
+              <input class="form-check-input" type="checkbox" id="judges" value="JUD" checked />
+              <label class="form-check-label" for="judges">Judges of the Unnderworld</label>
+            </div>
+            <div class="form-check form-check-inline boxes">
+              <input class="form-check-input" type="checkbox" id="trojan" value="TRO" checked />
+              <label class="form-check-label" for="trojan">Heroes of the Trojan Wars</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <h3 class="mt-4 mb-3 text-center" for="tablesCount">Combien de tables :</h3>
+          <div class="text-center">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tableCount" id="one" value="1" checked />
+              <label class="form-check-label" for="one">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tableCount" id="two" value="2" />
+              <label class="form-check-label" for="two">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tableCount" id="three" value="3" />
+              <label class="form-check-label" for="three">3</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <h3 class="mt-4 mb-3 text-center">Options :</h3>
+          <div class="d-flex flex-column align-items-center">
+            <div class="form-group row mb-1">
+              <label for="godCount" class="col-sm-8 col-form-label text-right unit-counts">Nombre de divinités</label>
+              <div class="col-sm-4">
+                <input type="number" class="form-control number-input" id="godCount" value="4" min="2" />
+              </div>
+            </div>
+            <div class="form-group row mb-1">
+              <label for="heroCount" class="col-sm-8 col-form-label text-right unit-counts">Nombre de héros</label>
+              <div class="col-sm-4">
+                <input type="number" class="form-control number-input" id="heroCount" value="5" min="0" />
+              </div>
+            </div>
+            <div class="form-group row mb-1">
+              <label for="monsterCount" class="col-sm-8 col-form-label text-right unit-counts"
+                >Nombre de monstres</label
+              >
+              <div class="col-sm-4">
+                <input type="number" class="form-control number-input" id="monsterCount" value="5" min="0" />
+              </div>
+            </div>
+            <div class="form-group row mb-1">
+              <label for="troopCount" class="col-sm-8 col-form-label text-right unit-counts">Nombre de troupes</label>
+              <div class="col-sm-4">
+                <input type="number" class="form-control number-input" id="troopCount" value="5" min="0" />
+              </div>
+            </div>
+            <div class="form-group row mb-1">
+              <label for="titans" class="col-sm-8 col-form-label text-right unit-counts">Inclure les titans</label>
+              <div class="col-sm-4 d-flex justify-content-center align-items-center">
+                <input class="form-check form-check-inline" type="checkbox" id="titans" />
+              </div>
+            </div>
+            <div class="form-group row mb-1">
+              <label for="veterans" class="col-sm-8 col-form-label text-right unit-counts">Inclure les vétérans</label>
+              <div class="col-sm-4 d-flex justify-content-center align-items-center">
+                <input class="form-check form-check-inline" type="checkbox" id="veterans" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4 mb-3">
+        <div class="col-sm text-center">
+          <button class="btn btn-primary" onclick="js:pickPools()">Créer les pools d'unités</button>
+        </div>
+      </div>
+
+      <div class="row d-none" id="results">
+        <div class="col-sm">
+          <h3 class="mt-4 mb-3 text-center">Pools:</h3>
+          <div class="d-flex justify-content-center flex-wrap" id="pools"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
