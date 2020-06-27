@@ -15,7 +15,28 @@ services:
             context: ./blog-context
         volumes:
             - ./www/blog:/blog/public
-    # blog-admin:
-    #     build:
-    #         context: ./empty-context
-    #         dockerfile: Dockerfile-blog-admin
+
+    sfb-database:
+        image: postgres:12.3-alpine
+        ports:
+            - 5431:5431
+            - 5432:5432
+        env_file:
+            - .env
+        environment:
+            POSTGRES_USER: sfb-ranking-user
+            POSTGRES_DB: sfb-ranking
+        volumes:
+            - ./sfb-data:/var/lib/postgresql/data:cached
+
+    sfb-ranking:
+        build:
+            context: ./sfb-ranking-context
+        ports:
+            - "8080:8080"
+        command: >
+            sh -c "npm run db:migrate -- --env production && NODE_ENV=production npm run server"
+        env_file:
+            - .env
+        depends_on:
+            - sfb-database
