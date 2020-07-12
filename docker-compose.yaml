@@ -6,10 +6,12 @@ services:
         restart: always
         ports:
             - 80:80
+            - 9090:9090
         volumes:
             - ./www:/usr/share/nginx/www:ro
             - ./staticfiles:/usr/share/nginx/staticfiles:ro
             - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - sfbdb-vol:/usr/share/nginx/www/sfbdb:ro
     blog:
         build:
             context: ./blog-context
@@ -40,3 +42,17 @@ services:
             - .env
         depends_on:
             - sfb-database
+
+    sfb-db:
+        build:
+            context: ./sfb-db-context
+        volumes:
+            - sfbdb-vol:/usr/app/build
+
+volumes:
+    sfbdb-vol:
+        driver: local
+        driver_opts:
+            type: none
+            device: $PWD/www/sfbdb
+            o: bind
