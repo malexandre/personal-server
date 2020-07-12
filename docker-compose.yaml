@@ -29,7 +29,7 @@ services:
             POSTGRES_USER: sfb-ranking-user
             POSTGRES_DB: sfb-ranking
         volumes:
-            - ./sfb-data:/var/lib/postgresql/data:cached
+            - sfbranking-db-vol:/var/lib/postgresql/data
 
     sfb-ranking:
         build:
@@ -40,6 +40,8 @@ services:
             sh -c "npm run db:migrate -- --env production && NODE_ENV=production npm run server"
         env_file:
             - .env
+        volumes:
+            - sfbranking-vol:/usr/app/build
         depends_on:
             - sfb-database
 
@@ -55,4 +57,16 @@ volumes:
         driver_opts:
             type: none
             device: $PWD/www/sfbdb
+            o: bind
+    sfbranking-db-vol:
+        driver: local
+        driver_opts:
+            type: none
+            device: $PWD/sfb-data
+            o: bind
+    sfbranking-vol:
+        driver: local
+        driver_opts:
+            type: none
+            device: $PWD/www/sfbranking
             o: bind
