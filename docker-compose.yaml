@@ -6,7 +6,6 @@ services:
         restart: always
         ports:
             - 80:80
-            - 9090:9090
         volumes:
             - ./www:/usr/share/nginx/www:ro
             - ./staticfiles:/usr/share/nginx/staticfiles:ro
