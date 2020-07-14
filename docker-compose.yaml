@@ -47,6 +47,7 @@ services:
     sfb-db:
         build:
             context: ./sfb-db-context
+        command: npm run deploy
         volumes:
             - sfbdb-vol:/usr/app/build
 

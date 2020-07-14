@@ -5,6 +5,6 @@ WORKDIR /usr/app
 
 RUN apk add git --no-cache
 RUN git clone https://github.com/malexandre/sfbdb.git .
+RUN git init
 
-RUN npm install
-RUN npm run build
+CMD ["npm", "run", "deploy"]
