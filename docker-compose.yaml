@@ -1,49 +1,51 @@
-version: '2'
+# Personal VPS stack. A single Nginx container (`web`) terminates TLS and fronts
+# every site; static sites are built by one-shot builder containers into ./www,
+# and TeamBrewer runs as its own isolated 3-service sub-stack reached over the
+# `frontend` network. Only `web` publishes ports (80/443) — no database or app
+# port is ever exposed to the host.
 services:
+    # Central reverse proxy / static file server. Owns HTTPS for all domains.
+    # The background loop reloads Nginx every 6h so renewed certs are picked up
+    # without a restart; `nginx -g "daemon off;"` keeps the container in the
+    # foreground (so `daemon off;` must NOT also be set inside nginx.conf).
     web:
         image: nginx:alpine
-        command: nginx
-        restart: always
+        restart: unless-stopped
+        command: /bin/sh -c "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g 'daemon off;'"
         ports:
             - 80:80
+            - 443:443
         volumes:
             - ./www:/usr/share/nginx/www:ro
             - ./staticfiles:/usr/share/nginx/staticfiles:ro
             - ./nginx.conf:/etc/nginx/nginx.conf:ro
             - sfbdb-vol:/usr/share/nginx/www/sfbdb:ro
+            - certbot-etc:/etc/letsencrypt
+            - certbot-www:/var/www/certbot
+        networks:
+            - frontend
+
+    # Renews Let's Encrypt certificates every 12h. Initial issuance is done once
+    # by ./init-letsencrypt.sh (Nginx cannot start referencing certs that do not
+    # exist yet). Shares the cert + ACME-webroot volumes with `web`.
+    certbot:
+        image: certbot/certbot
+        restart: unless-stopped
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+        volumes:
+            - certbot-etc:/etc/letsencrypt
+            - certbot-www:/var/www/certbot
+
+    # One-shot builder: builds the Hugo blog into ./www/blog, then exits.
+    # No restart policy — it is not a long-running service.
     blog:
         build:
             context: ./blog-context
         volumes:
             - ./www/blog:/blog/public
 
-    sfb-database:
-        image: postgres:12.3-alpine
-        ports:
-            - 5431:5431
-            - 5432:5432
-        env_file:
-            - .env
-        environment:
-            POSTGRES_USER: sfb-ranking-user
-            POSTGRES_DB: sfb-ranking
-        volumes:
-            - sfbranking-db-vol:/var/lib/postgresql/data
-
-    sfb-ranking:
-        build:
-            context: ./sfb-ranking-context
-        ports:
-            - "8080:8080"
-        command: >
-            sh -c "npm run db:migrate -- --env production && NODE_ENV=production npm run server"
-        env_file:
-            - .env
-        volumes:
-            - sfbranking-vol:/usr/app/build
-        depends_on:
-            - sfb-database
-
+    # One-shot builder: builds the sfbdb static site into the sfbdb volume, then
+    # exits. No restart policy.
     sfb-db:
         build:
             context: ./sfb-db-context
@@ -51,22 +53,83 @@ services:
         volumes:
             - sfbdb-vol:/usr/app/build
 
+    # --- TeamBrewer (brewer.malexandre.fr) --------------------------------
+    # A self-contained 3-service stack cloned into ./teambrewer at deploy time.
+    # Postgres + API stay on the private `teambrewer-internal` network; only the
+    # TeamBrewer Nginx (`teambrewer-web`) is also on `frontend` so the central
+    # `web` proxy can reach it. Network aliases (`postgres`, `api`) preserve the
+    # service names TeamBrewer's own config hard-codes, so its files stay
+    # untouched.
+    teambrewer-postgres:
+        image: postgres:17-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: teambrewer
+            POSTGRES_PASSWORD: ${TEAMBREWER_POSTGRES_PASSWORD:?set TEAMBREWER_POSTGRES_PASSWORD in .env}
+            POSTGRES_DB: teambrewer
+        volumes:
+            - teambrewer-postgres-data:/var/lib/postgresql/data
+        networks:
+            teambrewer-internal:
+                aliases:
+                    - postgres
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U teambrewer -d teambrewer"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    teambrewer-api:
+        build:
+            context: ./teambrewer
+            dockerfile: apps/api/Dockerfile
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+            API_PORT: 3000
+            DATABASE_URL: postgresql://teambrewer:${TEAMBREWER_POSTGRES_PASSWORD}@postgres:5432/teambrewer
+            WEB_ORIGIN: https://brewer.malexandre.fr
+            BETTER_AUTH_URL: https://brewer.malexandre.fr
+            BETTER_AUTH_SECRET: ${TEAMBREWER_BETTER_AUTH_SECRET:?set TEAMBREWER_BETTER_AUTH_SECRET in .env}
+            # Optional Discord SSO — leave blank to disable.
+            DISCORD_CLIENT_ID: ${TEAMBREWER_DISCORD_CLIENT_ID:-}
+            DISCORD_CLIENT_SECRET: ${TEAMBREWER_DISCORD_CLIENT_SECRET:-}
+            DISCORD_REDIRECT_URI: ${TEAMBREWER_DISCORD_REDIRECT_URI:-}
+        depends_on:
+            teambrewer-postgres:
+                condition: service_healthy
+        networks:
+            teambrewer-internal:
+                aliases:
+                    - api
+
+    teambrewer-web:
+        build:
+            context: ./teambrewer
+            dockerfile: apps/web/Dockerfile
+        restart: unless-stopped
+        depends_on:
+            - teambrewer-api
+        networks:
+            - frontend
+            - teambrewer-internal
+
+networks:
+    frontend:
+    teambrewer-internal:
+
 volumes:
+    # Static-site output shared between the sfb-db builder and `web`, bind-mounted
+    # to a host path so the built files are visible on disk.
     sfbdb-vol:
         driver: local
         driver_opts:
             type: none
             device: $PWD/www/sfbdb
             o: bind
-    sfbranking-db-vol:
-        driver: local
-        driver_opts:
-            type: none
-            device: $PWD/sfb-data
-            o: bind
-    sfbranking-vol:
-        driver: local
-        driver_opts:
-            type: none
-            device: $PWD/www/sfbranking
-            o: bind
+    # Persistent TeamBrewer database. A named volume survives `docker compose
+    # down`; only `docker compose down -v` would delete it.
+    teambrewer-postgres-data:
+    # Let's Encrypt certs + ACME challenge webroot, shared by `web` and `certbot`.
+    certbot-etc:
+    certbot-www:

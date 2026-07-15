@@ -1,2 +1,5 @@
 www/
 staticfiles/
+sfb-data/
+teambrewer/
+.env
