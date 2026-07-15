@@ -82,7 +82,8 @@ services:
     teambrewer-api:
         build:
             context: ./teambrewer
-            dockerfile: apps/api/Dockerfile
+            dockerfile: Dockerfile
+            target: api
         restart: unless-stopped
         environment:
             NODE_ENV: production
@@ -112,7 +113,8 @@ services:
     teambrewer-web:
         build:
             context: ./teambrewer
-            dockerfile: apps/web/Dockerfile
+            dockerfile: Dockerfile
+            target: web
         restart: unless-stopped
         depends_on:
             - teambrewer-api

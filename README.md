@@ -61,7 +61,7 @@ data, and the first admin are **not** created automatically. Run once:
 
 ```bash
 docker compose exec -e SEED_ADMIN_USERNAME=admin -e SEED_ADMIN_DISPLAY_NAME="Admin" \
-  teambrewer-api sh -c "cd apps/api && node dist/main.seed.js && node dist/main.cli.js && node dist/main.bootstrap.js"
+  teambrewer-api sh -c "node dist/main.seed.js && node dist/main.cli.js && node dist/main.bootstrap.js"
 ```
 
 - `main.seed.js` — seeds reference games + formats (required).

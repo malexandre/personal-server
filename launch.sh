@@ -46,7 +46,7 @@ data, sync cards, and create the instance-admin — then open the printed setup
 link to set the admin password and enable TOTP 2FA:
 
   docker compose exec -e SEED_ADMIN_USERNAME=admin -e SEED_ADMIN_DISPLAY_NAME="Admin" \
-    teambrewer-api sh -c "cd apps/api && node dist/main.seed.js && node dist/main.cli.js && node dist/main.bootstrap.js"
+    teambrewer-api sh -c "node dist/main.seed.js && node dist/main.cli.js && node dist/main.bootstrap.js"
 
 See README.md for details.
 EOF
