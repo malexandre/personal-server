@@ -95,6 +95,12 @@ services:
             DISCORD_CLIENT_ID: ${TEAMBREWER_DISCORD_CLIENT_ID:-}
             DISCORD_CLIENT_SECRET: ${TEAMBREWER_DISCORD_CLIENT_SECRET:-}
             DISCORD_REDIRECT_URI: ${TEAMBREWER_DISCORD_REDIRECT_URI:-}
+            # Built-in card-data sync on a schedule. Default daily at 04:00 UTC;
+            # override the cron via TEAMBREWER_CARD_SYNC_CRON in .env (e.g. weekly
+            # Mondays: "0 4 * * 1"). Riftbound currently errors each run (Cloudflare
+            # challenge) but FAB still refreshes.
+            CARD_SYNC_ENABLED: "true"
+            CARD_SYNC_CRON: ${TEAMBREWER_CARD_SYNC_CRON:-0 4 * * *}
         depends_on:
             teambrewer-postgres:
                 condition: service_healthy
