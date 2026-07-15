@@ -23,7 +23,7 @@ cd "$(dirname "$0")"
 
 # Contact email for Let's Encrypt (expiry/renewal notices). Required — pass it in:
 #   EMAIL=you@example.com ./init-letsencrypt.sh
-EMAIL="${EMAIL:?set EMAIL=you@example.com (Let's Encrypt contact address)}"
+EMAIL="${EMAIL:?set EMAIL=you@example.com, the certificate contact address}"
 # Set STAGING=1 to hit Let's Encrypt's staging endpoint (untrusted certs, but no
 # rate limits) while validating the setup. Leave unset for real certificates.
 STAGING="${STAGING:-0}"
