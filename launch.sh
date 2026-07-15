@@ -28,8 +28,16 @@ fi
 # Issue Let's Encrypt certificates (first run only; renewals are automatic).
 ./init-letsencrypt.sh
 
-# Build and start everything.
-docker compose up -d --build
+# Build images one service at a time. Building all in parallel (the default of
+# `up --build`) runs several Node installs at once and can exhaust RAM on a small
+# VPS. Keep this list in sync with the services that have a `build:` section.
+for service in teambrewer-api teambrewer-web blog sfb-db; do
+    echo "==> Building $service ..."
+    docker compose build "$service"
+done
+
+# Start the whole stack (also pulls the image-only services: nginx, postgres, certbot).
+docker compose up -d
 
 cat <<'EOF'
 

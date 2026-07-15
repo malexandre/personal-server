@@ -22,5 +22,13 @@ else
     git clone --branch main https://github.com/malexandre/teambrewer.git teambrewer
 fi
 
-# Rebuild and restart. The TeamBrewer API applies pending DB migrations on boot.
-docker compose up -d --build
+# Rebuild images one service at a time (parallel builds can exhaust RAM on a small
+# VPS). Keep this list in sync with the services that have a `build:` section.
+# The TeamBrewer API applies pending DB migrations on boot.
+for service in teambrewer-api teambrewer-web blog sfb-db; do
+    echo "==> Building $service ..."
+    docker compose build "$service"
+done
+
+# Restart the whole stack.
+docker compose up -d
