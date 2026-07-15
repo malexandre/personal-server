@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
-# Redeploy: pull this repo, refresh app sources, rebuild and restart the stack.
-# Certificates and the TeamBrewer database volume are left untouched.
+# Redeploy: pull this repo, pull the pre-built TeamBrewer images, rebuild the
+# local static-site images, and restart the stack. Certificates and the
+# TeamBrewer database volume are left untouched.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -15,17 +16,15 @@ mkdir -p www/blog www/sfbdb www/staticfiles
 wget -O www/staticfiles/mbp15.html \
     https://raw.githubusercontent.com/malexandre/mbp-1.5-pool-generator/master/index.html
 
-# Update the TeamBrewer source to the latest main.
-if [ -d teambrewer/.git ]; then
-    (cd teambrewer && git fetch origin main && git reset --hard origin/main)
-else
-    git clone --branch main https://github.com/malexandre/teambrewer.git teambrewer
-fi
+# Pull the pre-built TeamBrewer images from GHCR (built in CI, not on this box).
+# Bump the version via TEAMBREWER_VERSION in .env. The API applies pending DB
+# migrations on boot. If the packages are private, `docker login ghcr.io` first.
+docker compose pull teambrewer-api teambrewer-web
 
-# Rebuild images one service at a time (parallel builds can exhaust RAM on a small
-# VPS). Keep this list in sync with the services that have a `build:` section.
-# The TeamBrewer API applies pending DB migrations on boot.
-for service in teambrewer-api teambrewer-web blog sfb-db; do
+# Build the remaining local images one at a time (parallel builds can exhaust RAM
+# on a small VPS). Keep this list in sync with the services that have a `build:`
+# section — only the static-site builders are built here now.
+for service in blog sfb-db; do
     echo "==> Building $service ..."
     docker compose build "$service"
 done

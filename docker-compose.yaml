@@ -80,10 +80,9 @@ services:
             retries: 10
 
     teambrewer-api:
-        build:
-            context: ./teambrewer
-            dockerfile: Dockerfile
-            target: api
+        # Pre-built in CI and pulled from GHCR — the server no longer builds
+        # TeamBrewer. Bump the tag via TEAMBREWER_VERSION in .env.
+        image: ghcr.io/malexandre/teambrewer-api:${TEAMBREWER_VERSION:-1.0.0}
         restart: unless-stopped
         environment:
             NODE_ENV: production
@@ -111,10 +110,7 @@ services:
                     - api
 
     teambrewer-web:
-        build:
-            context: ./teambrewer
-            dockerfile: Dockerfile
-            target: web
+        image: ghcr.io/malexandre/teambrewer-web:${TEAMBREWER_VERSION:-1.0.0}
         restart: unless-stopped
         depends_on:
             - teambrewer-api

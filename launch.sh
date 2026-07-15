@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
 # First-run bootstrap for a fresh server. Creates the on-disk directories the
-# bind-mounted volumes need, fetches app sources, issues TLS certificates, then
-# builds and starts the whole stack. Run ./update.sh for subsequent deploys.
+# bind-mounted volumes need, issues TLS certificates, pulls the pre-built
+# TeamBrewer images, builds the local static sites, and starts the stack. Run
+# ./update.sh for subsequent deploys.
 #
 # Prerequisites: a root .env exists (see README.md), DNS points at this host, and
 # ports 80/443 are open.
@@ -18,20 +19,16 @@ mkdir -p www/blog www/sfbdb www/staticfiles
 wget -O www/staticfiles/mbp15.html \
     https://raw.githubusercontent.com/malexandre/mbp-1.5-pool-generator/master/index.html
 
-# Clone the TeamBrewer source used to build its containers.
-if [ -d teambrewer/.git ]; then
-    (cd teambrewer && git fetch origin main && git reset --hard origin/main)
-else
-    git clone --branch main https://github.com/malexandre/teambrewer.git teambrewer
-fi
-
 # Issue Let's Encrypt certificates (first run only; renewals are automatic).
 ./init-letsencrypt.sh
 
-# Build images one service at a time. Building all in parallel (the default of
-# `up --build`) runs several Node installs at once and can exhaust RAM on a small
-# VPS. Keep this list in sync with the services that have a `build:` section.
-for service in teambrewer-api teambrewer-web blog sfb-db; do
+# Pull the pre-built TeamBrewer images from GHCR (built in CI, not on this box).
+# If the packages are private, run `docker login ghcr.io` first.
+docker compose pull teambrewer-api teambrewer-web
+
+# Build the local static-site images one at a time (parallel builds can exhaust
+# RAM on a small VPS). Only the static builders are built here now.
+for service in blog sfb-db; do
     echo "==> Building $service ..."
     docker compose build "$service"
 done

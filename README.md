@@ -22,6 +22,9 @@ port is exposed to the host.
 - DNS `A` records for every domain above pointing at the VPS.
 - Ports **80** and **443** open in the OVH firewall.
 - A root `.env` file (see below), never committed.
+- Access to the TeamBrewer images on GHCR (`ghcr.io/malexandre/teambrewer-{api,web}`).
+  If those packages are **public**, nothing to do; if **private**, run
+  `docker login ghcr.io` once (with a token that has `read:packages`) before deploying.
 
 ## Configuration (`.env`)
 
@@ -38,6 +41,10 @@ TEAMBREWER_BETTER_AUTH_SECRET=<openssl rand -base64 32>
 # TEAMBREWER_DISCORD_CLIENT_ID=
 # TEAMBREWER_DISCORD_CLIENT_SECRET=
 # TEAMBREWER_DISCORD_REDIRECT_URI=https://brewer.malexandre.fr/api/auth/callback/discord
+
+# Optional — pin the TeamBrewer image tag pulled from GHCR (default: 1.0.0).
+# GHCR tags have no leading "v" (docker/metadata-action strips it):
+# TEAMBREWER_VERSION=1.0.0
 ```
 
 Do **not** reuse the dev `.env` from the TeamBrewer checkout — generate a fresh
@@ -49,10 +56,12 @@ Do **not** reuse the dev `.env` from the TeamBrewer checkout — generate a fres
 EMAIL=you@example.com ./launch.sh
 ```
 
-`launch.sh` creates the on-disk directories, fetches app sources (clones
-TeamBrewer's `main`), issues Let's Encrypt certificates via `init-letsencrypt.sh`
-(run once), then builds and starts everything. Certificates renew automatically
-thereafter (the `certbot` service; `web` reloads every 6h to pick them up).
+`launch.sh` creates the on-disk directories, issues Let's Encrypt certificates via
+`init-letsencrypt.sh` (run once), **pulls the pre-built TeamBrewer images from
+GHCR**, builds the local static-site images (blog, sfbdb), and starts everything.
+Certificates renew automatically thereafter (the `certbot` service; `web` reloads
+every 6h to pick them up). Deploying a new TeamBrewer release is just bumping
+`TEAMBREWER_VERSION` in `.env` and running `./update.sh` (no build on the server).
 
 ### Finish setting up TeamBrewer (first run only)
 
