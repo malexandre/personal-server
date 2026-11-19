@@ -30,12 +30,9 @@ STAGING="${STAGING:-0}"
 
 COMPOSE="docker compose"
 
-# Certificate lineages: "<lineage-name> <domain> [more domains...]". The lineage
-# name is the directory under /etc/letsencrypt/live and must match nginx.conf.
-CERTS=(
-    "malexandre.fr malexandre.fr www.malexandre.fr brewer.malexandre.fr"
-    "sfbdb.com sfbdb.com www.sfbdb.com"
-)
+# Certificate lineages (the CERTS array), shared with expand-certificates.sh.
+# shellcheck source=certificate-domains.sh
+source ./certificate-domains.sh
 
 echo "### Creating temporary self-signed certificates ..."
 for entry in "${CERTS[@]}"; do

@@ -8,8 +8,10 @@ services:
     # The background loop reloads Nginx every 6h so renewed certs are picked up
     # without a restart; `nginx -g "daemon off;"` keeps the container in the
     # foreground (so `daemon off;` must NOT also be set inside nginx.conf).
+    # The image follows the Nginx stable branch: it only receives fixes, and
+    # ./update.sh pulls it again on every deploy so security releases land.
     web:
-        image: nginx:alpine
+        image: nginx:1.30-alpine
         restart: unless-stopped
         command: /bin/sh -c "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g 'daemon off;'"
         ports:

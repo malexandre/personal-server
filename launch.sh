@@ -13,11 +13,10 @@ cd "$(dirname "$0")"
 
 # Directories backing bind-mounted volumes / static roots must exist before the
 # containers start (the sfbdb volume is a bind mount to ./www/sfbdb).
-mkdir -p www/blog www/sfbdb www/staticfiles
+mkdir -p www/blog www/sfbdb www/staticfiles www/deck
 
-# Static page served at /mbp15.
-wget -O www/staticfiles/mbp15.html \
-    https://raw.githubusercontent.com/malexandre/mbp-1.5-pool-generator/master/index.html
+# Single-file static pages (mbp15, FaB Deck Image).
+source ./fetch-static-pages.sh
 
 # Issue Let's Encrypt certificates (first run only; renewals are automatic).
 ./init-letsencrypt.sh
